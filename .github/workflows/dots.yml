@@ -1,0 +1,54 @@
+name: Daily dots
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch: # Allows manual triggering
+  pull_request:
+
+jobs:
+  random-change:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Git
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Generate random changes
+      - name: Make Random Changes
+        run: |
+          FILE="random-file.txt"
+          echo "$(date): Random change $RANDOM" >> $FILE
+          git add $FILE
+          git commit -m "Random change: $RANDOM"
+
+      # Push changes to a new branch
+      - name: Push Changes
+        run: |
+          BRANCH="random-change-$(date +%s)"
+          git checkout -b $BRANCH
+          git push origin $BRANCH
+
+      # Create a Pull Request
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.push.outputs.BRANCH }}
+          title: "Automated Random Change"
+          body: "This PR was created automatically by the workflow."
+
+      # Merge the Pull Request
+      - name: Auto-Merge PR
+        if: steps.create_pr.outputs.pull_request_number
+        run: |
+          gh pr merge ${{ steps.create_pr.outputs.pull_request_number }} --merge --repo $GITHUB_REPOSITORY --confirm
+        env:
+          GITHUB_TOK
