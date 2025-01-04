@@ -20,25 +20,23 @@ jobs:
           source config
           echo "max_commits=$max_commits" >> "$GITHUB_OUTPUT"
       - name: Calculate number of jobs
-        uses: actions/github-script@v7
         id: jobs
-        with:
-          script: |
-            generate_range_array() {
-              local start=$1
-              local end=$2
-              local array=()
+        run: |
+          generate_range_array() {
+            local start=$1
+            local end=$2
+            local array=()
 
-              for ((i=start; i<=end; i++)); do
-                array+=($i)
-              done
+            for ((i=start; i<=end; i++)); do
+              array+=($i)
+            done
 
-              echo "[${array[*]}]"
-            }
-            start=1
-            end=${{ steps.config.outputs.max_commits }}
-            result=$(generate_range_array $start $end)
-            echo "jobs=$result" >> "$GITHUB_OUTPUT"
+            echo "[${array[*]}]"
+          }
+          start=1
+          end=${{ steps.config.outputs.max_commits }}
+          result=$(generate_range_array $start $end)
+          echo "jobs=$result" >> "$GITHUB_OUTPUT"
 
   calculate-uuid:
     runs-on: ubuntu-latest
