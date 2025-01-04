@@ -1,0 +1,81 @@
+name: Daily dots
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.jobs.outputs.jobs }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Get config
+        id: config
+        run: |
+          source config
+          echo "max_commits=$max_commits" >> "$GITHUB_OUTPUT"
+      - name: Calculate number of jobs
+        id: jobs
+        run: |
+          generate_array() {
+            local start=$1
+            local end=$(( ( RANDOM % ($2 - $start + 1) ) + $start ))
+            local array=()
+
+            for ((i=start; i<=end; i++)); do
+              array+=($i)
+            done
+
+            printf '%s\n' "${array[@]}" | jq -R . | jq -s . | jq -c .
+          }
+          start=1
+          end=${{ steps.config.outputs.max_commits }}
+          result=$(generate_array $start $end)
+          echo $result
+          echo "jobs=$result" >> "$GITHUB_OUTPUT"
+
+  calculate-uuid:
+    runs-on: ubuntu-latest
+    needs: setup
+    strategy:
+      matrix:
+        child: ${{ fromJSON(needs.setup.outputs.jobs ) }}
+      max-parallel: 1
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Get config
+        id: config
+        run: |
+          source config
+          echo "user_name=$user_name" >> "$GITHUB_OUTPUT"
+          echo "user_email=$user_email" >> "$GITHUB_OUTPUT"
+      - name: Calculate the uuid of the day
+        id: uuid
+        run: |
+          FILE="uuid"
+          dailyuuid=$(uuidgen)
+          echo $dailyuuid >> $FILE
+          echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          branch: "uuid-of-the-day/${{ steps.uuid.outputs.uuid }}"
+          title: "UUID of the day"
+          body: "I spent some time calculating this UUID this morning"
+          commit-message: "uuid of the day: ${{ steps.uuid.outputs.uuid }}"
+          committer: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
+          author: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
+          base: main
+      - name: Auto-Merge PR
+        if: steps.cpr.outputs.pull-request-number
+        run: |
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --merge --repo $GITHUB_REPOSITORY --delete-branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
