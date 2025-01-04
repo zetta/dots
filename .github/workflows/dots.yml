@@ -20,18 +20,31 @@ jobs:
           source config
           echo "max_commits=$max_commits" >> "$GITHUB_OUTPUT"
       - name: Calculate number of jobs
+        uses: actions/github-script@v7
         id: jobs
-        run: |
-          MIN=1
-          MAX=${{ steps.config.outputs.max_commits }}
-          PRODUCTIVITY=$(( ( RANDOM % (MAX - MIN + 1) ) + MIN ))
-          echo "jobs=$PRODUCTIVITY" >> "$GITHUB_OUTPUT"
+        with:
+          script: |
+            generate_range_array() {
+              local start=$1
+              local end=$2
+              local array=()
+
+              for ((i=start; i<=end; i++)); do
+                array+=($i)
+              done
+
+              echo "[${array[*]}]"
+            }
+            start=1
+            end=${{ steps.config.outputs.max_commits }}
+            result=$(generate_range_array $start $end)
+            echo "jobs=$result" >> "$GITHUB_OUTPUT"
 
   calculate-uuid:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        child: "${{ fromJSON(format('[%s]', join(',', range(1, needs.setup.outputs.jobs | int)))) }}"
+        child: ${{ fromJSON(needs.setup.outputs.jobs ) }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
