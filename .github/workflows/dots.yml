@@ -59,7 +59,7 @@ jobs:
         run: |
           FILE="uuid"
           dailyuuid=$(uuidgen)
-          echo $dailyuuid > $FILE
+          echo $dailyuuid >> $FILE
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
       - name: Create Pull Request
         id: cpr
