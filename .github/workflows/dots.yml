@@ -28,6 +28,7 @@ jobs:
           branch: "uuid-of-the-day/${{ steps.uuid.outputs.uuid }}"
           title: "UUID of the day"
           body: "I spent some time calculating this UUID this morning"
+          commit-message: "uuid of the day: ${{ steps.uuid.outputs.uuid }}"
           committer: "zetta <204105+zetta@users.noreply.github.com>"
           author: "zetta <204105+zetta@users.noreply.github.com>"
           base: main
