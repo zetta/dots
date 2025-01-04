@@ -36,6 +36,7 @@ jobs:
           start=1
           end=${{ steps.config.outputs.max_commits }}
           result=$(generate_range_array $start $end)
+          echo $result
           echo "jobs=$result" >> "$GITHUB_OUTPUT"
 
   calculate-uuid:
