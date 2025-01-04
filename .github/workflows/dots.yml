@@ -7,48 +7,45 @@ on:
   pull_request:
 
 jobs:
-  random-change:
+  calculate-uuid:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
       - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Set up Git
+        uses: actions/checkout@v4
       - name: Set up Git
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      # Generate random changes
-      - name: Make Random Changes
+          git config --global user.name "zetta"
+          git config --global user.email "204105+zetta@users.noreply.github.com"
+      - name: Calculate the uuid of the day
+        id: uuid
         run: |
-          FILE="random-file.txt"
-          echo "$(date): Random change $RANDOM" >> $FILE
+          FILE="uuid"
+          dailyuuid=$(uuidgen)
+          echo $dailyuuid >> $FILE
           git add $FILE
-          git commit -m "Random change: $RANDOM"
+          git commit -m "UUID of the day: $dailyuuid"
+          echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
 
-      # Push changes to a new branch
       - name: Push Changes
+        id: push
         run: |
-          BRANCH="random-change-$(date +%s)"
+          BRANCH="uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
           git checkout -b $BRANCH
           git push origin $BRANCH
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
-      # Create a Pull Request
       - name: Create Pull Request
         id: create_pr
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ steps.push.outputs.BRANCH }}
-          title: "Automated Random Change"
-          body: "This PR was created automatically by the workflow."
+          token: ${{ secrets.GH_TOKEN }}
+          branch: ${{ steps.push.outputs.branch }}
+          title: "UUID of the day"
+          body: "I spent some time calculating this UUID this morning"
 
-      # Merge the Pull Request
       - name: Auto-Merge PR
         if: steps.create_pr.outputs.pull_request_number
         run: |
           gh pr merge ${{ steps.create_pr.outputs.pull_request_number }} --merge --repo $GITHUB_REPOSITORY --confirm
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
