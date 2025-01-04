@@ -41,6 +41,7 @@ jobs:
 
   calculate-uuid:
     runs-on: ubuntu-latest
+    needs: setup
     strategy:
       matrix:
         child: ${{ fromJSON(needs.setup.outputs.jobs ) }}
