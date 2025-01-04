@@ -12,10 +12,10 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      - name: Set up Git
-        run: |
-          git config --global user.name "zetta"
-          git config --global user.email "204105+zetta@users.noreply.github.com"
+      # - name: Set up Git
+      #   run: |
+      #     git config --global user.name "zetta"
+      #     git config --global user.email "204105+zetta@users.noreply.github.com"
       - name: Calculate the uuid of the day
         id: uuid
         run: |
@@ -26,22 +26,17 @@ jobs:
           git commit -m "UUID of the day: $dailyuuid"
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
 
-      # - name: Push Changes
-      #   id: push
-      #   run: |
-      #     BRANCH="uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
-      #     git checkout -b $BRANCH
-      #     git push origin $BRANCH
-      #     echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
-
       - name: Create Pull Request
         id: create_pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GH_TOKEN }}
-          branch: "uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
+          branch: "uuid-of-the-day/${{ steps.uuid.outputs.uuid }}"
           title: "UUID of the day"
           body: "I spent some time calculating this UUID this morning"
+          committer: "zetta <204105+zetta@users.noreply.github.com>"
+          author: "zetta <204105+zetta@users.noreply.github.com>"
+          base: main
 
       - name: Auto-Merge PR
         if: steps.create_pr.outputs.pull_request_number
