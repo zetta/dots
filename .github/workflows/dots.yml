@@ -12,10 +12,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      # - name: Set up Git
-      #   run: |
-      #     git config --global user.name "zetta"
-      #     git config --global user.email "204105+zetta@users.noreply.github.com"
       - name: Calculate the uuid of the day
         id: uuid
         run: |
@@ -25,7 +21,7 @@ jobs:
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
-        id: create_pr
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GH_TOKEN }}
@@ -37,8 +33,8 @@ jobs:
           base: main
 
       - name: Auto-Merge PR
-        if: steps.create_pr.outputs.pull_request_number
+        if: steps.cpr.outputs.pull-request-number
         run: |
-          gh pr merge ${{ steps.create_pr.outputs.pull_request_number }} --merge --repo $GITHUB_REPOSITORY --confirm
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --merge --repo $GITHUB_REPOSITORY --confirm
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
