@@ -22,9 +22,9 @@ jobs:
       - name: Calculate number of jobs
         id: jobs
         run: |
-          generate_range_array() {
+          generate_array() {
             local start=$1
-            local end=$2
+            local end=$(( ( RANDOM % ($2 - $start + 1) ) + $start ))
             local array=()
 
             for ((i=start; i<=end; i++)); do
@@ -35,7 +35,7 @@ jobs:
           }
           start=1
           end=${{ steps.config.outputs.max_commits }}
-          result=$(generate_range_array $start $end)
+          result=$(generate_array $start $end)
           echo $result
           echo "jobs=$result" >> "$GITHUB_OUTPUT"
 
@@ -45,6 +45,7 @@ jobs:
     strategy:
       matrix:
         child: ${{ fromJSON(needs.setup.outputs.jobs ) }}
+      max-parallel: 1
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
