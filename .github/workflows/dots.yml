@@ -31,7 +31,7 @@ jobs:
               array+=($i)
             done
 
-            printf '%s\n' "${array[@]}" | jq -R . | jq -s .
+            printf '%s\n' "${array[@]}" | jq -R . | jq -s . | jq -c .
           }
           start=1
           end=${{ steps.config.outputs.max_commits }}
