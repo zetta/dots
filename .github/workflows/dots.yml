@@ -35,8 +35,8 @@ jobs:
           title: "UUID of the day"
           body: "I spent some time calculating this UUID this morning"
           commit-message: "uuid of the day: ${{ steps.uuid.outputs.uuid }}"
-          committer: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}"
-          author: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}"
+          committer: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
+          author: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
           base: main
 
       - name: Auto-Merge PR
