@@ -35,6 +35,6 @@ jobs:
       - name: Auto-Merge PR
         if: steps.cpr.outputs.pull-request-number
         run: |
-          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --merge --repo $GITHUB_REPOSITORY --confirm
+          gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --merge --repo $GITHUB_REPOSITORY --delete-branch
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
