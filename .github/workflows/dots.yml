@@ -26,20 +26,20 @@ jobs:
           git commit -m "UUID of the day: $dailyuuid"
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
 
-      - name: Push Changes
-        id: push
-        run: |
-          BRANCH="uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
-          git checkout -b $BRANCH
-          git push origin $BRANCH
-          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+      # - name: Push Changes
+      #   id: push
+      #   run: |
+      #     BRANCH="uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
+      #     git checkout -b $BRANCH
+      #     git push origin $BRANCH
+      #     echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Create Pull Request
         id: create_pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GH_TOKEN }}
-          branch: ${{ steps.push.outputs.branch }}
+          branch: "uuid-of-the-day-${{ steps.uuid.outputs.uuid }}"
           title: "UUID of the day"
           body: "I spent some time calculating this UUID this morning"
 
