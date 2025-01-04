@@ -7,8 +7,31 @@ on:
   pull_request:
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      jobs: ${{ steps.jobs.outputs.jobs }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Get config
+        id: config
+        run: |
+          source config
+          echo "max_commits=$max_commits" >> "$GITHUB_OUTPUT"
+      - name: Calculate number of jobs
+        id: jobs
+        run: |
+          MIN=1
+          MAX=${{ steps.config.outputs.max_commits }}
+          PRODUCTIVITY=$(( ( RANDOM % (MAX - MIN + 1) ) + MIN ))
+          echo "jobs=$PRODUCTIVITY" >> "$GITHUB_OUTPUT"
+
   calculate-uuid:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        child: "${{ fromJSON(format('[%s]', join(',', range(1, needs.setup.outputs.jobs | int)))) }}"
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -25,7 +48,6 @@ jobs:
           dailyuuid=$(uuidgen)
           echo $dailyuuid >> $FILE
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
-
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7
@@ -38,7 +60,6 @@ jobs:
           committer: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
           author: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}>"
           base: main
-
       - name: Auto-Merge PR
         if: steps.cpr.outputs.pull-request-number
         run: |
