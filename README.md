@@ -55,7 +55,7 @@ To let the workflow make commits and create PRs, you need a Personal Access Toke
 3. Generate the token and copy it immediately (you won’t see it again).
 4. Add the token to your forked repo:
     - Go to Settings → Secrets and Variables → Actions → New Repository Secret.
-    - Name it GH_TOKEN and paste the token.
+    - Name it `GH_TOKEN` and paste the token.
 
 ### Step 4: Enable and Run the Workflow
 1. Go to Actions in your forked repo.
