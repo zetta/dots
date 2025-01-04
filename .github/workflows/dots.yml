@@ -51,4 +51,4 @@ jobs:
         run: |
           gh pr merge ${{ steps.create_pr.outputs.pull_request_number }} --merge --repo $GITHUB_REPOSITORY --confirm
         env:
-          GITHUB_TOK
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
