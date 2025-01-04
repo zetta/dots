@@ -34,7 +34,7 @@ jobs:
           body: "I spent some time calculating this UUID this morning"
           committer: "zetta <204105+zetta@users.noreply.github.com>"
           author: "zetta <204105+zetta@users.noreply.github.com>"
-          # base: main
+          base: main
 
       - name: Auto-Merge PR
         if: steps.create_pr.outputs.pull_request_number
