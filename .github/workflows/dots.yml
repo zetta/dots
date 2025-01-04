@@ -2,8 +2,8 @@ name: Daily dots
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs daily at midnight UTC
-  workflow_dispatch: # Allows manual triggering
+    - cron: '0 0 * * *'
+  workflow_dispatch:
   pull_request:
 
 jobs:
@@ -12,6 +12,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+      - name: Get config
+        id: config
+        run: |
+          source config
+          echo "user_name=$user_name" >> "$GITHUB_OUTPUT"
+          echo "user_email=$user_email" >> "$GITHUB_OUTPUT"
       - name: Calculate the uuid of the day
         id: uuid
         run: |
@@ -29,8 +35,8 @@ jobs:
           title: "UUID of the day"
           body: "I spent some time calculating this UUID this morning"
           commit-message: "uuid of the day: ${{ steps.uuid.outputs.uuid }}"
-          committer: "zetta <204105+zetta@users.noreply.github.com>"
-          author: "zetta <204105+zetta@users.noreply.github.com>"
+          committer: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}"
+          author: "${{ steps.config.outputs.user_name }} <${{ steps.config.outputs.user_email }}"
           base: main
 
       - name: Auto-Merge PR
