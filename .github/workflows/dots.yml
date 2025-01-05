@@ -48,6 +48,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: main
       - name: Get config
         id: config
         run: |
@@ -57,7 +59,7 @@ jobs:
       - name: Calculate the uuid of the day
         id: uuid
         run: |
-          FILE="uuid"
+          FILE="uuid_${{  matrix.child }}"
           dailyuuid=$(uuidgen)
           echo $dailyuuid >> $FILE
           echo "uuid=$dailyuuid" >> "$GITHUB_OUTPUT"
